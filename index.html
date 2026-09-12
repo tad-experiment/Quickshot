@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0B0D0E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Shot Timer</title>
+<link id="manifestLink" rel="manifest">
+<link id="faviconLink" rel="icon" type="image/svg+xml">
+<link id="appleIconLink" rel="apple-touch-icon">
+<script>
+  // Everything below is inlined (icon + manifest) so this single HTML file
+    // has zero external resource dependencies — nothing else to upload/host.
+      (function(){
+          var iconSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">'+
+                '<rect width="192" height="192" rx="28" fill="#0B0D0E"/>'+
+                      '<circle cx="96" cy="100" r="62" fill="none" stroke="#FFA630" stroke-width="10"/>'+
+                            '<circle cx="96" cy="100" r="40" fill="none" stroke="#FFA630" stroke-width="6" opacity="0.55"/>'+
+                                  '<circle cx="96" cy="100" r="6" fill="#FFA630"/>'+
+                                        '<line x1="96" y1="100" x2="96" y2="62" stroke="#FFA630" stroke-width="7" stroke-linecap="round"/>'+
+                                              '<line x1="96" y1="100" x2="122" y2="112" stroke="#FFA630" stroke-width="7" stroke-linecap="round"/>'+
+                                                    '<rect x="80" y="26" width="32" height="14" rx="4" fill="#FFA630"/>'+
+                                                          '</svg>';
+                                                              var iconDataUri = 'data:image/svg+xml;utf8,' + encodeURIComponent(iconSVG);
+                                                                  document.getElementById('faviconLink').href = iconDataUri;
+                                                                      document.getElementById('appleIconLink').href = iconDataUri;
+                                                                          var manifest = {
+                                                                                name: "Shot Timer", short_name: "ShotTimer",
+                                                                                      start_url: ".", scope: ".", display: "standalone", orientation: "portrait",
+                                                                                            background_color: "#0B0D0E", theme_color: "#0B0D0E",
+                                                                                                  icons: [{ src: iconDataUri, sizes: "any", type: "image/svg+xml", purpose: "any" }]
+                                                                                                      };
+                                                                                                          var manifestBlob = new Blob([JSON.stringify(manifest)], {type: "application/manifest+json"});
