@@ -13,24 +13,1124 @@
 <link id="appleIconLink" rel="apple-touch-icon">
 <script>
   // Everything below is inlined (icon + manifest) so this single HTML file
-    // has zero external resource dependencies — nothing else to upload/host.
-      (function(){
-          var iconSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">'+
-                '<rect width="192" height="192" rx="28" fill="#0B0D0E"/>'+
-                      '<circle cx="96" cy="100" r="62" fill="none" stroke="#FFA630" stroke-width="10"/>'+
-                            '<circle cx="96" cy="100" r="40" fill="none" stroke="#FFA630" stroke-width="6" opacity="0.55"/>'+
-                                  '<circle cx="96" cy="100" r="6" fill="#FFA630"/>'+
-                                        '<line x1="96" y1="100" x2="96" y2="62" stroke="#FFA630" stroke-width="7" stroke-linecap="round"/>'+
-                                              '<line x1="96" y1="100" x2="122" y2="112" stroke="#FFA630" stroke-width="7" stroke-linecap="round"/>'+
-                                                    '<rect x="80" y="26" width="32" height="14" rx="4" fill="#FFA630"/>'+
-                                                          '</svg>';
-                                                              var iconDataUri = 'data:image/svg+xml;utf8,' + encodeURIComponent(iconSVG);
-                                                                  document.getElementById('faviconLink').href = iconDataUri;
-                                                                      document.getElementById('appleIconLink').href = iconDataUri;
-                                                                          var manifest = {
-                                                                                name: "Shot Timer", short_name: "ShotTimer",
-                                                                                      start_url: ".", scope: ".", display: "standalone", orientation: "portrait",
-                                                                                            background_color: "#0B0D0E", theme_color: "#0B0D0E",
-                                                                                                  icons: [{ src: iconDataUri, sizes: "any", type: "image/svg+xml", purpose: "any" }]
-                                                                                                      };
-                                                                                                          var manifestBlob = new Blob([JSON.stringify(manifest)], {type: "application/manifest+json"});
+  // has zero external resource dependencies — nothing else to upload/host.
+  (function(){
+    var iconSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">'+
+      '<rect width="192" height="192" rx="28" fill="#0B0D0E"/>'+
+      '<circle cx="96" cy="100" r="62" fill="none" stroke="#FFA630" stroke-width="10"/>'+
+      '<circle cx="96" cy="100" r="40" fill="none" stroke="#FFA630" stroke-width="6" opacity="0.55"/>'+
+      '<circle cx="96" cy="100" r="6" fill="#FFA630"/>'+
+      '<line x1="96" y1="100" x2="96" y2="62" stroke="#FFA630" stroke-width="7" stroke-linecap="round"/>'+
+      '<line x1="96" y1="100" x2="122" y2="112" stroke="#FFA630" stroke-width="7" stroke-linecap="round"/>'+
+      '<rect x="80" y="26" width="32" height="14" rx="4" fill="#FFA630"/>'+
+      '</svg>';
+    var iconDataUri = 'data:image/svg+xml;utf8,' + encodeURIComponent(iconSVG);
+    document.getElementById('faviconLink').href = iconDataUri;
+    document.getElementById('appleIconLink').href = iconDataUri;
+    var manifest = {
+      name: "Shot Timer", short_name: "ShotTimer",
+      start_url: ".", scope: ".", display: "standalone", orientation: "portrait",
+      background_color: "#0B0D0E", theme_color: "#0B0D0E",
+      icons: [{ src: iconDataUri, sizes: "any", type: "image/svg+xml", purpose: "any" }]
+    };
+    var manifestBlob = new Blob([JSON.stringify(manifest)], {type: "application/manifest+json"});
+    document.getElementById('manifestLink').href = URL.createObjectURL(manifestBlob);
+  })();
+</script>
+<style>
+  :root{
+    --bg:#0B0D0E;
+    --bg-elev:#15181A;
+    --bg-elev-2:#1D2124;
+    --line:#2A2F33;
+    --text:#ECEDEE;
+    --muted:#8A9096;
+    --amber:#FFA630;
+    --amber-dim:#5C3E15;
+    --red:#FF4433;
+    --red-dim:#4A1712;
+    --steel:#7FB2D9;
+    --green:#4CAF6D;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Roboto Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0; background:var(--bg); color:var(--text); font-family:var(--sans);
+    overscroll-behavior:none; user-select:none; -webkit-user-select:none;
+    padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom);
+  }
+  #app{display:flex; flex-direction:column; height:100vh; height:100dvh;}
+
+  /* ---------- Header ---------- */
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 14px; border-bottom:1px solid var(--line); flex:0 0 auto;
+  }
+  header .title{font-size:15px; letter-spacing:.04em; color:var(--muted); font-weight:600;}
+  header .icon-btn{
+    width:40px; height:40px; border-radius:10px; border:1px solid var(--line);
+    background:var(--bg-elev); color:var(--text); font-size:18px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  header .icons{display:flex; gap:8px;}
+
+  /* ---------- Main ---------- */
+  main{flex:1 1 auto; overflow-y:auto; display:flex; flex-direction:column; min-height:0;}
+
+  .readout{
+    text-align:center; padding:22px 16px 10px; flex:0 0 auto;
+  }
+  .readout .label{font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.12em;}
+  .readout .big{
+    font-family:var(--mono); font-variant-numeric:tabular-nums; font-weight:700;
+    font-size:min(20vw,88px); line-height:1; color:var(--amber); margin:6px 0;
+    text-shadow:0 0 24px rgba(255,166,48,.25);
+  }
+  .readout .big.listening{color:var(--text);}
+  .readout .sub{display:flex; justify-content:center; gap:22px; margin-top:6px;}
+  .readout .sub div{font-family:var(--mono); font-size:15px; color:var(--muted);}
+  .readout .sub div b{color:var(--text); font-variant-numeric:tabular-nums;}
+
+  .state-banner{
+    text-align:center; font-size:13px; padding:6px; letter-spacing:.08em;
+    text-transform:uppercase; font-weight:700; flex:0 0 auto;
+  }
+  .state-banner.idle{color:var(--muted);}
+  .state-banner.armed{color:var(--steel); background:rgba(127,178,217,.08);}
+  .state-banner.listening{color:var(--red); background:rgba(255,68,51,.08); animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.55;}}
+
+  .shotlist{flex:1 1 auto; overflow-y:auto; padding:4px 12px 8px;}
+  .shot-row{
+    display:grid; grid-template-columns:34px 1fr 1fr; gap:8px; align-items:center;
+    padding:10px 8px; border-bottom:1px solid var(--line); font-family:var(--mono);
+  }
+  .shot-row .num{color:var(--muted); font-size:14px;}
+  .shot-row .elapsed{font-size:17px; font-variant-numeric:tabular-nums;}
+  .shot-row .split{font-size:15px; color:var(--muted); text-align:right; font-variant-numeric:tabular-nums;}
+  .shot-row.slowest .split{color:var(--red); font-weight:700;}
+  .shot-row.afterpar .elapsed{color:var(--red);}
+  .shot-row.afterpar .elapsed::after{content:" ⏱"; font-size:11px;}
+  .empty-hint{color:var(--muted); text-align:center; padding:30px 20px; font-size:14px; line-height:1.5;}
+
+  footer.stats{
+    display:grid; grid-template-columns:repeat(4,1fr); border-top:1px solid var(--line);
+    flex:0 0 auto; background:var(--bg-elev);
+  }
+  footer.stats div{padding:10px 4px; text-align:center;}
+  footer.stats .val{font-family:var(--mono); font-size:18px; font-variant-numeric:tabular-nums; font-weight:700;}
+  footer.stats .lbl{font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-top:2px;}
+
+  /* ---------- Big button ---------- */
+  .button-dock{
+    flex:0 0 auto; display:flex; justify-content:center; align-items:center;
+    padding:16px 0 calc(16px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg, rgba(11,13,14,0), var(--bg) 30%);
+  }
+  #mainBtn{
+    width:120px; height:120px; border-radius:50%; border:4px solid #000;
+    font-family:var(--sans); font-weight:800; font-size:20px; letter-spacing:.05em;
+    color:#141414; background:var(--amber);
+    box-shadow:0 6px 0 #b5761c, 0 10px 18px rgba(0,0,0,.5);
+    transform:translateY(0);
+  }
+  #mainBtn:active{transform:translateY(5px); box-shadow:0 1px 0 #b5761c, 0 3px 8px rgba(0,0,0,.5);}
+  #mainBtn.listening{background:var(--red); box-shadow:0 6px 0 #9c261b, 0 10px 18px rgba(0,0,0,.5); color:#1a0a08;}
+  #mainBtn.listening:active{box-shadow:0 1px 0 #9c261b, 0 3px 8px rgba(0,0,0,.5);}
+  #mainBtn:disabled{opacity:.5;}
+
+  /* ---------- Sheets (settings / review) ---------- */
+  .sheet-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:20;
+    opacity:0; pointer-events:none; transition:opacity .18s;
+  }
+  .sheet-overlay.open{opacity:1; pointer-events:auto;}
+  .sheet{
+    position:fixed; left:0; right:0; bottom:0; max-height:88vh; z-index:21;
+    background:var(--bg-elev); border-radius:18px 18px 0 0; border-top:1px solid var(--line);
+    transform:translateY(100%); transition:transform .22s ease-out;
+    display:flex; flex-direction:column; padding-bottom:env(safe-area-inset-bottom);
+  }
+  .sheet.open{transform:translateY(0);}
+  .sheet-head{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 16px; border-bottom:1px solid var(--line); flex:0 0 auto;
+  }
+  .sheet-head h2{font-size:16px; margin:0;}
+  .sheet-body{overflow-y:auto; padding:6px 16px 24px;}
+  .sheet .close-btn{background:none; border:none; color:var(--muted); font-size:22px; padding:4px 8px;}
+
+  .field{margin:16px 0;}
+  .field .row-between{display:flex; justify-content:space-between; align-items:baseline;}
+  .field label{font-size:13px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em;}
+  .field .value{font-family:var(--mono); font-size:14px; color:var(--text);}
+  .field input[type=range]{width:100%; accent-color:var(--amber); margin-top:8px;}
+  .field-note{font-size:12px; color:var(--muted); margin-top:4px; line-height:1.4;}
+  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .toggle-row{display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--line);}
+  .toggle-row:last-child{border-bottom:none;}
+  .switch{position:relative; width:46px; height:26px;}
+  .switch input{opacity:0; width:0; height:0;}
+  .switch .slider{position:absolute; inset:0; background:var(--line); border-radius:14px; transition:.15s;}
+  .switch .slider::before{content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.15s;}
+  .switch input:checked + .slider{background:var(--amber);}
+  .switch input:checked + .slider::before{transform:translateX(20px);}
+  input[type=number]{
+    background:var(--bg-elev-2); border:1px solid var(--line); color:var(--text);
+    font-family:var(--mono); font-size:16px; padding:8px; border-radius:8px; width:100%;
+  }
+
+  .meter{margin-top:10px;}
+  .meter-bar{height:22px; background:var(--bg-elev-2); border-radius:6px; overflow:hidden; position:relative; border:1px solid var(--line);}
+  .meter-fill{height:100%; width:0%; background:linear-gradient(90deg, var(--green), var(--amber) 70%, var(--red) 92%); transition:width .04s linear;}
+  .meter-threshold{position:absolute; top:0; bottom:0; width:2px; background:#fff;}
+  .meter-peak{position:absolute; top:0; bottom:0; width:2px; background:var(--steel);}
+  .meter-status{font-size:11px; color:var(--muted); margin-top:4px; display:flex; justify-content:space-between;}
+
+  .btn{
+    display:block; width:100%; padding:12px; border-radius:10px; border:1px solid var(--line);
+    background:var(--bg-elev-2); color:var(--text); font-size:14px; font-weight:600; margin-top:8px;
+  }
+  .btn.danger{color:var(--red); border-color:var(--red-dim);}
+  .btn.primary{background:var(--amber); color:#141414; border:none;}
+
+  /* ---------- Review ---------- */
+  .string-card{background:var(--bg-elev-2); border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:10px;}
+  .string-card .sc-head{display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-bottom:6px;}
+  .string-card .sc-main{display:flex; gap:18px; font-family:var(--mono); font-size:15px;}
+  .string-card .sc-main b{font-size:20px; color:var(--amber); display:block;}
+  .string-card .sc-splits{margin-top:8px; font-size:12px; color:var(--muted); font-family:var(--mono); word-break:break-word;}
+
+  /* ---------- Permission / boot overlays ---------- */
+  .center-msg{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:30px; gap:14px;
+  }
+  .center-msg h2{margin:0; font-size:18px;}
+  .center-msg p{margin:0; color:var(--muted); font-size:14px; line-height:1.5; max-width:340px;}
+  .flash{
+    position:fixed; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:30;
+    transition:opacity .08s;
+  }
+  .flash.on{opacity:1; transition:none;}
+
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header>
+    <div class="title">SHOT TIMER</div>
+    <div class="icons">
+      <button class="icon-btn" id="reviewBtn" title="Review" aria-label="Review strings">☰</button>
+      <button class="icon-btn" id="settingsBtn" title="Settings" aria-label="Settings">⚙</button>
+    </div>
+  </header>
+
+  <div class="state-banner idle" id="stateBanner">Ready</div>
+
+  <main id="mainView">
+    <div class="readout">
+      <div class="label">First shot</div>
+      <div class="big" id="firstShotVal">--</div>
+      <div class="sub">
+        <div>Clock <b id="clockVal">0.00</b></div>
+        <div>Shots <b id="shotCountVal">0</b></div>
+      </div>
+    </div>
+
+    <div class="shotlist" id="shotList">
+      <div class="empty-hint">Tap START. Wait for the beep. Shots will appear here as they're detected.</div>
+    </div>
+
+    <footer class="stats">
+      <div><div class="val" id="statTotal">--</div><div class="lbl">Total</div></div>
+      <div><div class="val" id="statCount">0</div><div class="lbl">Shots</div></div>
+      <div><div class="val" id="statAvg">--</div><div class="lbl">Avg split</div></div>
+      <div><div class="val" id="statBest">--</div><div class="lbl">Best split</div></div>
+    </footer>
+  </main>
+
+  <div class="button-dock">
+    <button id="mainBtn">START</button>
+  </div>
+</div>
+
+<div class="flash" id="flash"></div>
+
+<!-- ============ SETTINGS SHEET ============ -->
+<div class="sheet-overlay" id="settingsOverlay"></div>
+<div class="sheet" id="settingsSheet">
+  <div class="sheet-head"><h2>Settings</h2><button class="close-btn" data-close="settings">✕</button></div>
+  <div class="sheet-body">
+
+    <div class="toggle-row">
+      <label>Fixed delay (instead of random)</label>
+      <label class="switch"><input type="checkbox" id="fixedDelayEnabled"><span class="slider"></span></label>
+    </div>
+
+    <div class="field" id="randomDelayFields">
+      <div class="row-between"><label>Random delay range (seconds)</label><span class="value" id="delayRangeVal">1.0 – 10.0</span></div>
+      <div class="two-col">
+        <div><input type="number" id="delayMin" min="0.2" max="30" step="0.1" value="1.0"></div>
+        <div><input type="number" id="delayMax" min="0.2" max="30" step="0.1" value="10.0"></div>
+      </div>
+      <div class="field-note">App waits a random time in this range after START before the beep.</div>
+    </div>
+
+    <div class="field" id="fixedDelayField" style="display:none;">
+      <div class="row-between"><label>Fixed delay (seconds)</label><span class="value" id="fixedDelayVal">4.0</span></div>
+      <input type="range" id="fixedDelay" min="0.2" max="20" step="0.1" value="4.0">
+    </div>
+
+    <div class="field">
+      <div class="row-between"><label>Sensitivity threshold</label><span class="value" id="thresholdVal">35</span></div>
+      <input type="range" id="threshold" min="5" max="95" step="1" value="35">
+      <div class="field-note">Minimum peak level (relative to full scale) required to count as a shot. Lower = more sensitive.</div>
+      <div class="meter">
+        <div class="meter-bar"><div class="meter-fill" id="meterFill"></div><div class="meter-threshold" id="meterThreshold"></div><div class="meter-peak" id="meterPeak"></div></div>
+        <div class="meter-status"><span id="meterMicStatus">Mic: not started</span><span id="meterEngine">Engine: --</span></div>
+      </div>
+      <button class="btn" id="micTestBtn">Start mic test / calibrate</button>
+    </div>
+
+    <div class="field">
+      <div class="row-between"><label>Onset sensitivity (rise over background)</label><span class="value" id="onsetVal">3.5×</span></div>
+      <input type="range" id="onsetRatio" min="1.5" max="8" step="0.1" value="3.5">
+      <div class="field-note">A block must also spike this many times above the recent quiet-background level — this is what tells a sharp gunshot transient apart from steady loud noise.</div>
+    </div>
+
+    <div class="field">
+      <div class="row-between"><label>Refractory / dead time</label><span class="value" id="refractoryVal">100 ms</span></div>
+      <input type="range" id="refractory" min="60" max="250" step="5" value="100">
+      <div class="field-note">Ignore further detections for this long after a shot, to reject muzzle-blast echo.</div>
+    </div>
+
+    <div class="toggle-row">
+      <label>Par time</label>
+      <label class="switch"><input type="checkbox" id="parEnabled"><span class="slider"></span></label>
+    </div>
+    <div class="field" id="parField" style="display:none;">
+      <div class="row-between"><label>Par time (seconds after beep)</label><span class="value" id="parVal">10.0</span></div>
+      <input type="range" id="parTime" min="1" max="60" step="0.5" value="10.0">
+      <div class="field-note">A second beep sounds at this time and the string ends. Shots fired after it are flagged.</div>
+    </div>
+
+    <div class="field">
+      <div class="row-between"><label>Beep volume</label><span class="value" id="volVal">100%</span></div>
+      <input type="range" id="beepVolume" min="10" max="100" step="5" value="100">
+    </div>
+    <div class="field">
+      <div class="row-between"><label>Beep frequency</label><span class="value" id="freqVal">2500 Hz</span></div>
+      <input type="range" id="beepFreq" min="800" max="4000" step="50" value="2500">
+    </div>
+
+    <button class="btn" id="testBeepBtn">Test beep</button>
+    <button class="btn danger" id="clearHistoryBtn">Clear string history</button>
+  </div>
+</div>
+
+<!-- ============ REVIEW SHEET ============ -->
+<div class="sheet-overlay" id="reviewOverlay"></div>
+<div class="sheet" id="reviewSheet">
+  <div class="sheet-head"><h2>Review — recent strings</h2><button class="close-btn" data-close="review">✕</button></div>
+  <div class="sheet-body" id="reviewBody">
+    <div class="empty-hint">No strings recorded yet.</div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* =========================================================================
+   CONSTANTS
+   ========================================================================= */
+var STORAGE_SETTINGS = "shotTimer.settings.v1";
+var STORAGE_HISTORY   = "shotTimer.history.v1";
+var MAX_HISTORY = 50;
+var BEEP_DURATION = 0.3;        // seconds
+var SUPPRESS_TAIL = 0.05;       // seconds after beep, per spec
+var PAR_TAIL = 0.2;             // small grace after par beep before auto-stop, to catch a shot right at the buzzer
+
+/* =========================================================================
+   SETTINGS + STORAGE
+   ========================================================================= */
+var defaultSettings = {
+  fixedDelayEnabled: false,
+  delayMin: 1.0,
+  delayMax: 10.0,
+  fixedDelay: 4.0,
+  threshold: 35,        // 0-100 -> amplitude fraction threshold/100
+  onsetRatio: 3.5,
+  refractoryMs: 100,
+  parEnabled: false,
+  parTime: 10.0,
+  beepVolume: 100,       // 0-100
+  beepFreq: 2500
+};
+var settings = loadSettings();
+
+function loadSettings(){
+  try{
+    var raw = localStorage.getItem(STORAGE_SETTINGS);
+    if(!raw) return Object.assign({}, defaultSettings);
+    var parsed = JSON.parse(raw);
+    return Object.assign({}, defaultSettings, parsed);
+  }catch(e){ return Object.assign({}, defaultSettings); }
+}
+function saveSettings(){
+  try{ localStorage.setItem(STORAGE_SETTINGS, JSON.stringify(settings)); }catch(e){}
+}
+
+function loadHistory(){
+  try{
+    var raw = localStorage.getItem(STORAGE_HISTORY);
+    return raw ? JSON.parse(raw) : [];
+  }catch(e){ return []; }
+}
+function saveHistory(list){
+  try{ localStorage.setItem(STORAGE_HISTORY, JSON.stringify(list.slice(0, MAX_HISTORY))); }catch(e){}
+}
+var history = loadHistory();
+
+/* =========================================================================
+   DOM SHORTCUTS
+   ========================================================================= */
+function $(id){ return document.getElementById(id); }
+
+var el = {
+  mainBtn: $("mainBtn"),
+  stateBanner: $("stateBanner"),
+  firstShotVal: $("firstShotVal"),
+  clockVal: $("clockVal"),
+  shotCountVal: $("shotCountVal"),
+  shotList: $("shotList"),
+  statTotal: $("statTotal"),
+  statCount: $("statCount"),
+  statAvg: $("statAvg"),
+  statBest: $("statBest"),
+  flash: $("flash"),
+  mainView: $("mainView"),
+
+  settingsBtn: $("settingsBtn"),
+  settingsSheet: $("settingsSheet"),
+  settingsOverlay: $("settingsOverlay"),
+  reviewBtn: $("reviewBtn"),
+  reviewSheet: $("reviewSheet"),
+  reviewOverlay: $("reviewOverlay"),
+  reviewBody: $("reviewBody"),
+
+  fixedDelayEnabled: $("fixedDelayEnabled"),
+  randomDelayFields: $("randomDelayFields"),
+  fixedDelayField: $("fixedDelayField"),
+  delayMin: $("delayMin"),
+  delayMax: $("delayMax"),
+  delayRangeVal: $("delayRangeVal"),
+  fixedDelay: $("fixedDelay"),
+  fixedDelayVal: $("fixedDelayVal"),
+
+  threshold: $("threshold"),
+  thresholdVal: $("thresholdVal"),
+  onsetRatio: $("onsetRatio"),
+  onsetVal: $("onsetVal"),
+  refractory: $("refractory"),
+  refractoryVal: $("refractoryVal"),
+
+  parEnabled: $("parEnabled"),
+  parField: $("parField"),
+  parTime: $("parTime"),
+  parVal: $("parVal"),
+
+  beepVolume: $("beepVolume"),
+  volVal: $("volVal"),
+  beepFreq: $("beepFreq"),
+  freqVal: $("freqVal"),
+
+  testBeepBtn: $("testBeepBtn"),
+  micTestBtn: $("micTestBtn"),
+  clearHistoryBtn: $("clearHistoryBtn"),
+
+  meterFill: $("meterFill"),
+  meterThreshold: $("meterThreshold"),
+  meterPeak: $("meterPeak"),
+  meterMicStatus: $("meterMicStatus"),
+  meterEngine: $("meterEngine")
+};
+
+/* =========================================================================
+   APP / AUDIO STATE
+   ========================================================================= */
+var audioCtx = null;
+var micStream = null;
+var micSource = null;
+var workletNode = null;
+var analyserNode = null;      // fallback path
+var usingWorklet = false;
+var micReady = false;
+var meterRAF = null;
+var fallbackRAF = null;
+var wakeLock = null;
+
+var appState = "idle";        // idle | armed | listening | done
+var stringT0 = null;          // AudioContext time of beep start (t=0)
+var suppressUntil = 0;
+var parBeepTime = null;
+var parFired = false;
+var stringShots = [];         // {t, elapsed, split, afterPar}
+var lastDelayUsed = null;
+var clockRAF = null;
+var scheduledStopTimer = null;
+var beepWatchRAF = null;
+
+var meterActive = false;
+var meterPeakHold = 0;
+var meterPeakHoldTime = 0;
+
+/* =========================================================================
+   AUDIO ENGINE SETUP
+   ========================================================================= */
+function ensureAudioContext(){
+  if(!audioCtx){
+    var Ctx = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new Ctx();
+  }
+  if(audioCtx.state === "suspended"){
+    audioCtx.resume();
+  }
+  return audioCtx;
+}
+
+// AudioWorklet processor source, compiled to a Blob module at runtime so the
+// whole app stays a single distributable file and works fully offline.
+var WORKLET_SOURCE = [
+"class ShotDetector extends AudioWorkletProcessor {",
+"  constructor(options){",
+"    super();",
+"    var o = (options && options.processorOptions) || {};",
+"    this.threshold = o.threshold != null ? o.threshold : 0.35;",
+"    this.onsetRatio = o.onsetRatio != null ? o.onsetRatio : 3.5;",
+"    this.refractoryMs = o.refractoryMs != null ? o.refractoryMs : 100;",
+"    this.noiseFloor = 0.01;",
+"    this.suppressUntil = 0;",
+"    this.refractoryUntil = 0;",
+"    this.samplesSinceLevel = 0;",
+"    this.levelHopSamples = Math.round(sampleRate * 0.05);",
+"    this.port.onmessage = (function(self){ return function(e){",
+"      var d = e.data;",
+"      if(d.type === 'config'){",
+"        if(d.threshold != null) self.threshold = d.threshold;",
+"        if(d.onsetRatio != null) self.onsetRatio = d.onsetRatio;",
+"        if(d.refractoryMs != null) self.refractoryMs = d.refractoryMs;",
+"      } else if(d.type === 'reset'){",
+"        self.noiseFloor = 0.01;",
+"        self.refractoryUntil = 0;",
+"        self.suppressUntil = d.suppressUntil || 0;",
+"      } else if(d.type === 'suppressUntil'){",
+"        self.suppressUntil = d.suppressUntil;",
+"      }",
+"    };})(this);",
+"  }",
+"  process(inputs){",
+"    var input = inputs[0];",
+"    if(!input || !input[0]) return true;",
+"    var ch = input[0];",
+"    var n = ch.length;",
+"    var blockStart = currentTime;",
+"    var peak = 0, peakIdx = 0, sumSq = 0;",
+"    for(var i=0;i<n;i++){",
+"      var v = ch[i];",
+"      var a = v < 0 ? -v : v;",
+"      if(a > peak){ peak = a; peakIdx = i; }",
+"      sumSq += v*v;",
+"    }",
+"    var rms = Math.sqrt(sumSq / n);",
+"    var suppressed = blockStart < this.suppressUntil;",
+"    var inRefractory = blockStart < this.refractoryUntil;",
+"    if(!suppressed && !inRefractory){",
+"      var floor = this.noiseFloor < 0.0008 ? 0.0008 : this.noiseFloor;",
+"      var absOK = peak >= this.threshold;",
+"      var onsetOK = peak >= floor * this.onsetRatio;",
+"      if(absOK && onsetOK){",
+"        var shotTime = blockStart + (peakIdx / sampleRate);",
+"        this.refractoryUntil = shotTime + (this.refractoryMs / 1000);",
+"        this.port.postMessage({type:'shot', time: shotTime, peak: peak});",
+"      } else {",
+"        this.noiseFloor = this.noiseFloor * 0.98 + rms * 0.02;",
+"      }",
+"    }",
+"    this.samplesSinceLevel += n;",
+"    if(this.samplesSinceLevel >= this.levelHopSamples){",
+"      this.samplesSinceLevel = 0;",
+"      this.port.postMessage({type:'level', peak: peak, floor: this.noiseFloor, time: blockStart});",
+"    }",
+"    return true;",
+"  }",
+"}",
+"registerProcessor('shot-detector', ShotDetector);"
+].join("\n");
+
+function setupWorklet(){
+  return ensureAudioContext().audioWorklet.addModule(
+    URL.createObjectURL(new Blob([WORKLET_SOURCE], {type:"application/javascript"}))
+  );
+}
+
+function connectMicGraph(){
+  var ctx = ensureAudioContext();
+  micSource = ctx.createMediaStreamSource(micStream);
+  var muteGain = ctx.createGain();
+  muteGain.gain.value = 0; // never audible; only present so the graph is pulled every render quantum
+
+  return setupWorklet().then(function(){
+    workletNode = new AudioWorkletNode(ctx, "shot-detector", {
+      processorOptions: {
+        threshold: settings.threshold/100,
+        onsetRatio: settings.onsetRatio,
+        refractoryMs: settings.refractoryMs
+      }
+    });
+    workletNode.port.onmessage = handleWorkletMessage;
+    micSource.connect(workletNode).connect(muteGain).connect(ctx.destination);
+    usingWorklet = true;
+    el.meterEngine.textContent = "Engine: AudioWorklet";
+  }).catch(function(err){
+    console.warn("AudioWorklet unavailable, falling back to AnalyserNode:", err);
+    analyserNode = ctx.createAnalyser();
+    analyserNode.fftSize = 2048;
+    micSource.connect(analyserNode).connect(muteGain).connect(ctx.destination);
+    usingWorklet = false;
+    el.meterEngine.textContent = "Engine: Analyser fallback";
+    startFallbackLoop();
+  });
+}
+
+/* ---- Fallback detection loop (AnalyserNode + requestAnimationFrame) ---- */
+var fallbackState = { noiseFloor:0.01, refractoryUntil:0, buf:null };
+function startFallbackLoop(){
+  fallbackState.buf = new Float32Array(analyserNode.fftSize);
+  function tick(){
+    fallbackRAF = requestAnimationFrame(tick);
+    var ctx = audioCtx;
+    analyserNode.getFloatTimeDomainData(fallbackState.buf);
+    var n = fallbackState.buf.length;
+    var peak=0, peakIdx=0, sumSq=0;
+    for(var i=0;i<n;i++){
+      var v = fallbackState.buf[i];
+      var a = v<0?-v:v;
+      if(a>peak){peak=a; peakIdx=i;}
+      sumSq += v*v;
+    }
+    var rms = Math.sqrt(sumSq/n);
+    // Buffer holds the most recent `n` samples ending "now"; estimate the
+    // absolute time of the peak sample from that.
+    var now = ctx.currentTime;
+    var peakTime = now - ((n - peakIdx) / ctx.sampleRate);
+    var suppressed = peakTime < suppressUntilShared();
+    var inRefractory = peakTime < fallbackState.refractoryUntil;
+    if(!suppressed && !inRefractory){
+      var floor = fallbackState.noiseFloor < 0.0008 ? 0.0008 : fallbackState.noiseFloor;
+      var absOK = peak >= (settings.threshold/100);
+      var onsetOK = peak >= floor * settings.onsetRatio;
+      if(absOK && onsetOK){
+        fallbackState.refractoryUntil = peakTime + settings.refractoryMs/1000;
+        handleShotDetected(peakTime, peak);
+      } else {
+        fallbackState.noiseFloor = fallbackState.noiseFloor*0.98 + rms*0.02;
+      }
+    }
+    updateMeter(peak);
+  }
+  tick();
+}
+function suppressUntilShared(){ return suppressUntil; }
+
+function handleWorkletMessage(e){
+  var d = e.data;
+  if(d.type === "shot"){
+    handleShotDetected(d.time, d.peak);
+  } else if(d.type === "level"){
+    updateMeter(d.peak);
+  }
+}
+
+function pushWorkletConfig(){
+  if(workletNode){
+    workletNode.port.postMessage({
+      type:"config",
+      threshold: settings.threshold/100,
+      onsetRatio: settings.onsetRatio,
+      refractoryMs: settings.refractoryMs
+    });
+  }
+}
+
+/* =========================================================================
+   MIC PERMISSION
+   ========================================================================= */
+function requestMic(){
+  if(micReady) return Promise.resolve();
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    return Promise.reject(new Error("getUserMedia not supported. Shot Timer requires HTTPS (or localhost) and a modern browser."));
+  }
+  return navigator.mediaDevices.getUserMedia({
+    audio: {
+      echoCancellation: false,
+      noiseSuppression: false,
+      autoGainControl: false,
+      channelCount: 1
+    }
+  }).then(function(stream){
+    micStream = stream;
+    micReady = true;
+    el.meterMicStatus.textContent = "Mic: live";
+    return connectMicGraph();
+  });
+}
+
+/* =========================================================================
+   METER (settings sheet)
+   ========================================================================= */
+function updateMeter(peak){
+  if(!meterActive) return;
+  var pct = Math.min(100, peak*100);
+  el.meterFill.style.width = pct + "%";
+  var now = performance.now();
+  if(peak >= meterPeakHold || now - meterPeakHoldTime > 900){
+    meterPeakHold = peak;
+    meterPeakHoldTime = now;
+  }
+  el.meterPeak.style.left = Math.min(100, meterPeakHold*100) + "%";
+}
+function positionThresholdMarker(){
+  el.meterThreshold.style.left = settings.threshold + "%";
+}
+
+/* =========================================================================
+   BEEP
+   ========================================================================= */
+function scheduleBeep(atTime, freq, volume, duration){
+  var ctx = audioCtx;
+  var osc = ctx.createOscillator();
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(freq, atTime);
+  var gain = ctx.createGain();
+  gain.gain.setValueAtTime(0, atTime);
+  gain.gain.linearRampToValueAtTime(volume, atTime + 0.005); // tiny ramp avoids a click
+  gain.gain.setValueAtTime(volume, atTime + duration - 0.01);
+  gain.gain.linearRampToValueAtTime(0, atTime + duration);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(atTime);
+  osc.stop(atTime + duration + 0.02);
+  return atTime + duration;
+}
+
+function testBeep(){
+  ensureAudioContext();
+  var ctx = audioCtx;
+  scheduleBeep(ctx.currentTime + 0.05, settings.beepFreq, settings.beepVolume/100, BEEP_DURATION);
+  if(navigator.vibrate) navigator.vibrate(120);
+}
+
+/* =========================================================================
+   STRING LIFECYCLE
+   ========================================================================= */
+function pickDelay(){
+  if(settings.fixedDelayEnabled) return settings.fixedDelay;
+  var lo = Math.min(settings.delayMin, settings.delayMax);
+  var hi = Math.max(settings.delayMin, settings.delayMax);
+  return lo + Math.random()*(hi-lo);
+}
+
+function startString(){
+  if(appState !== "idle" && appState !== "done") return;
+  el.mainBtn.disabled = true;
+
+  ensureAudioContext(); // must be synchronous within the click gesture for iOS
+
+  requestMic().then(function(){
+    el.mainBtn.disabled = false;
+    beginArmedSequence();
+  }).catch(function(err){
+    el.mainBtn.disabled = false;
+    showMicError(err);
+  });
+}
+
+function beginArmedSequence(){
+  stringShots = [];
+  parFired = false;
+  appState = "armed";
+  renderShotList();
+  updateStatsDisplay();
+  setBanner("armed", "Stand by…");
+  el.firstShotVal.textContent = "--";
+  el.firstShotVal.classList.remove("listening");
+  el.clockVal.textContent = "0.00";
+  el.mainBtn.textContent = "STOP";
+  el.mainBtn.classList.add("listening");
+
+  requestWakeLock();
+
+  var ctx = audioCtx;
+  var delay = pickDelay();
+  lastDelayUsed = delay;
+  stringT0 = ctx.currentTime + delay;
+  suppressUntil = stringT0 + BEEP_DURATION + SUPPRESS_TAIL;
+
+  if(workletNode) workletNode.port.postMessage({type:"reset", suppressUntil: suppressUntil});
+  fallbackState.noiseFloor = fallbackState.noiseFloor || 0.01;
+  fallbackState.refractoryUntil = 0;
+
+  scheduleBeep(stringT0, settings.beepFreq, settings.beepVolume/100, BEEP_DURATION);
+
+  parBeepTime = null;
+  if(settings.parEnabled){
+    parBeepTime = stringT0 + settings.parTime;
+    // distinct double-beep for par so it isn't mistaken for the start signal
+    scheduleBeep(parBeepTime, settings.beepFreq, settings.beepVolume/100, 0.15);
+    scheduleBeep(parBeepTime + 0.22, settings.beepFreq, settings.beepVolume/100, 0.15);
+  }
+
+  watchForBeep();
+}
+
+function watchForBeep(){
+  function tick(){
+    if(appState !== "armed" && appState !== "listening") return;
+    var now = audioCtx.currentTime;
+    if(appState === "armed" && now >= stringT0){
+      onBeepFired();
+    }
+    if(appState === "listening"){
+      el.clockVal.textContent = fmt(now - stringT0);
+      if(parBeepTime !== null && now >= parBeepTime + PAR_TAIL && !parFired){
+        parFired = true;
+        stopString();
+        return;
+      }
+    }
+    beepWatchRAF = requestAnimationFrame(tick);
+  }
+  beepWatchRAF = requestAnimationFrame(tick);
+}
+
+function onBeepFired(){
+  appState = "listening";
+  setBanner("listening", "Listening…");
+  el.firstShotVal.classList.add("listening");
+  el.flash.classList.add("on");
+  setTimeout(function(){ el.flash.classList.remove("on"); }, 90);
+  if(navigator.vibrate) navigator.vibrate(200);
+}
+
+function handleShotDetected(time, peak){
+  if(appState !== "listening") return; // ignore anything outside an active string (also covers suppression window)
+  var elapsed = time - stringT0;
+  if(elapsed < 0) return;
+  var prev = stringShots.length ? stringShots[stringShots.length-1].elapsed : 0;
+  var split = stringShots.length ? (elapsed - prev) : elapsed;
+  var afterPar = parBeepTime !== null && time >= parBeepTime;
+  stringShots.push({elapsed: elapsed, split: split, afterPar: afterPar, peak: peak});
+  renderShotList();
+  updateStatsDisplay();
+  if(stringShots.length === 1){
+    el.firstShotVal.textContent = fmt(elapsed);
+  }
+}
+
+function stopString(){
+  if(appState !== "armed" && appState !== "listening") return;
+  var wasListening = appState === "listening";
+  appState = "done";
+  setBanner("idle", "String complete");
+  el.mainBtn.textContent = "START";
+  el.mainBtn.classList.remove("listening");
+  releaseWakeLock();
+
+  if(wasListening && stringShots.length > 0){
+    saveStringToHistory();
+  }
+  setTimeout(function(){
+    if(appState === "done"){ appState = "idle"; setBanner("idle", "Ready"); }
+  }, 1500);
+}
+
+function saveStringToHistory(){
+  var totalTime = stringShots[stringShots.length-1].elapsed;
+  var splits = stringShots.slice(1).map(function(s){return s.split;});
+  var avg = splits.length ? splits.reduce(function(a,b){return a+b;},0)/splits.length : 0;
+  var best = splits.length ? Math.min.apply(null, splits) : 0;
+  var record = {
+    date: new Date().toISOString(),
+    delayUsed: lastDelayUsed,
+    parEnabled: settings.parEnabled,
+    parTime: settings.parEnabled ? settings.parTime : null,
+    shots: stringShots.map(function(s){return {elapsed:s.elapsed, split:s.split, afterPar:s.afterPar};}),
+    total: totalTime,
+    count: stringShots.length,
+    avgSplit: avg,
+    bestSplit: best
+  };
+  history.unshift(record);
+  history = history.slice(0, MAX_HISTORY);
+  saveHistory(history);
+}
+
+/* =========================================================================
+   RENDERING
+   ========================================================================= */
+function fmt(sec){
+  if(sec == null || isNaN(sec)) return "--";
+  return sec.toFixed(2);
+}
+function setBanner(cls, text){
+  el.stateBanner.className = "state-banner " + cls;
+  el.stateBanner.textContent = text;
+}
+
+function renderShotList(){
+  if(stringShots.length === 0){
+    el.shotList.innerHTML = '<div class="empty-hint">Tap START. Wait for the beep. Shots will appear here as they\'re detected.</div>';
+    return;
+  }
+  var slowestIdx = -1, slowestVal = -1;
+  for(var i=1;i<stringShots.length;i++){
+    if(stringShots[i].split > slowestVal){ slowestVal = stringShots[i].split; slowestIdx = i; }
+  }
+  var html = "";
+  for(var j=stringShots.length-1;j>=0;j--){
+    var s = stringShots[j];
+    var classes = "shot-row";
+    if(j === slowestIdx) classes += " slowest";
+    if(s.afterPar) classes += " afterpar";
+    html += '<div class="'+classes+'">'+
+      '<div class="num">#'+(j+1)+'</div>'+
+      '<div class="elapsed">'+fmt(s.elapsed)+'s</div>'+
+      '<div class="split">'+(j===0?"—":"+"+fmt(s.split)+"s")+'</div>'+
+    '</div>';
+  }
+  el.shotList.innerHTML = html;
+}
+
+function updateStatsDisplay(){
+  el.shotCountVal.textContent = stringShots.length;
+  el.statCount.textContent = stringShots.length;
+  if(stringShots.length === 0){
+    el.statTotal.textContent = "--";
+    el.statAvg.textContent = "--";
+    el.statBest.textContent = "--";
+    return;
+  }
+  var total = stringShots[stringShots.length-1].elapsed;
+  var splits = stringShots.slice(1).map(function(s){return s.split;});
+  el.statTotal.textContent = fmt(total);
+  el.statAvg.textContent = splits.length ? fmt(splits.reduce(function(a,b){return a+b;},0)/splits.length) : "--";
+  el.statBest.textContent = splits.length ? fmt(Math.min.apply(null, splits)) : "--";
+}
+
+function renderReview(){
+  if(history.length === 0){
+    el.reviewBody.innerHTML = '<div class="empty-hint">No strings recorded yet.</div>';
+    return;
+  }
+  var html = "";
+  history.forEach(function(rec){
+    var d = new Date(rec.date);
+    var dateStr = d.toLocaleDateString(undefined,{month:"short",day:"numeric"}) + " " + d.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});
+    var splitsStr = rec.shots.map(function(s,i){ return i===0 ? fmt(s.elapsed) : "+"+fmt(s.split); }).join("  ");
+    html += '<div class="string-card">'+
+      '<div class="sc-head"><span>'+dateStr+(rec.delayUsed!=null?(" · delay "+rec.delayUsed.toFixed(2)+"s"):"")+'</span><span>'+(rec.parEnabled?("par "+rec.parTime.toFixed(1)+"s"):"")+'</span></div>'+
+      '<div class="sc-main">'+
+        '<div>Total<b>'+fmt(rec.total)+'s</b></div>'+
+        '<div>Shots<b>'+rec.count+'</b></div>'+
+        '<div>Avg split<b>'+(rec.avgSplit?fmt(rec.avgSplit):"--")+'</b></div>'+
+        '<div>Best<b>'+(rec.bestSplit?fmt(rec.bestSplit):"--")+'</b></div>'+
+      '</div>'+
+      '<div class="sc-splits">'+splitsStr+'</div>'+
+    '</div>';
+  });
+  el.reviewBody.innerHTML = html;
+}
+
+/* =========================================================================
+   MIC ERROR HANDLING
+   ========================================================================= */
+function showMicError(err){
+  var msg = (err && err.name === "NotAllowedError")
+    ? "Microphone access was denied. Shot Timer can't detect shots without it. Enable microphone access for this site in your browser settings, then reload."
+    : "Couldn't access the microphone: " + (err && err.message ? err.message : err) + ". Shot Timer needs HTTPS (or localhost) and microphone permission.";
+  el.mainView.innerHTML = '<div class="center-msg"><h2>Microphone needed</h2><p>'+msg+'</p><button class="btn primary" id="retryMicBtn" style="max-width:220px;">Try again</button></div>';
+  document.getElementById("retryMicBtn").addEventListener("click", function(){
+    location.reload();
+  });
+}
+
+/* =========================================================================
+   WAKE LOCK
+   ========================================================================= */
+function requestWakeLock(){
+  if("wakeLock" in navigator){
+    navigator.wakeLock.request("screen").then(function(wl){
+      wakeLock = wl;
+    }).catch(function(){ /* ignore — non-fatal */ });
+  }
+}
+function releaseWakeLock(){
+  if(wakeLock){ wakeLock.release().catch(function(){}); wakeLock = null; }
+}
+document.addEventListener("visibilitychange", function(){
+  if(document.visibilityState === "visible" && (appState === "armed" || appState === "listening")){
+    requestWakeLock();
+  }
+});
+
+/* =========================================================================
+   UI WIRING
+   ========================================================================= */
+el.mainBtn.addEventListener("click", function(){
+  if(appState === "idle" || appState === "done"){
+    startString();
+  } else {
+    stopString();
+  }
+});
+
+function openSheet(sheet, overlay){ sheet.classList.add("open"); overlay.classList.add("open"); }
+function closeSheet(sheet, overlay){ sheet.classList.remove("open"); overlay.classList.remove("open"); }
+
+el.settingsBtn.addEventListener("click", function(){
+  openSheet(el.settingsSheet, el.settingsOverlay);
+});
+el.reviewBtn.addEventListener("click", function(){
+  renderReview();
+  openSheet(el.reviewSheet, el.reviewOverlay);
+});
+document.querySelectorAll("[data-close]").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    var which = btn.getAttribute("data-close");
+    if(which === "settings"){ closeSheet(el.settingsSheet, el.settingsOverlay); stopMicTest(); }
+    else { closeSheet(el.reviewSheet, el.reviewOverlay); }
+  });
+});
+el.settingsOverlay.addEventListener("click", function(){ closeSheet(el.settingsSheet, el.settingsOverlay); stopMicTest(); });
+el.reviewOverlay.addEventListener("click", function(){ closeSheet(el.reviewSheet, el.reviewOverlay); });
+
+/* ---- settings form bindings ---- */
+function bindRange(input, valEl, key, fmtFn, onChange){
+  input.value = settings[key];
+  valEl.textContent = fmtFn(settings[key]);
+  input.addEventListener("input", function(){
+    var v = parseFloat(input.value);
+    settings[key] = v;
+    valEl.textContent = fmtFn(v);
+    saveSettings();
+    if(onChange) onChange(v);
+  });
+}
+function bindNumber(input, key, onChange){
+  input.value = settings[key];
+  input.addEventListener("change", function(){
+    var v = parseFloat(input.value);
+    if(isNaN(v)) return;
+    settings[key] = v;
+    saveSettings();
+    if(onChange) onChange(v);
+    updateDelayRangeLabel();
+  });
+}
+
+el.fixedDelayEnabled.checked = settings.fixedDelayEnabled;
+toggleDelayFields();
+el.fixedDelayEnabled.addEventListener("change", function(){
+  settings.fixedDelayEnabled = el.fixedDelayEnabled.checked;
+  saveSettings();
+  toggleDelayFields();
+});
+function toggleDelayFields(){
+  el.randomDelayFields.style.display = settings.fixedDelayEnabled ? "none" : "block";
+  el.fixedDelayField.style.display = settings.fixedDelayEnabled ? "block" : "none";
+}
+function updateDelayRangeLabel(){
+  el.delayRangeVal.textContent = settings.delayMin.toFixed(1) + " – " + settings.delayMax.toFixed(1);
+}
+bindNumber(el.delayMin, "delayMin");
+bindNumber(el.delayMax, "delayMax");
+updateDelayRangeLabel();
+bindRange(el.fixedDelay, el.fixedDelayVal, "fixedDelay", function(v){return v.toFixed(1);});
+
+bindRange(el.threshold, el.thresholdVal, "threshold", function(v){return Math.round(v);}, function(){
+  positionThresholdMarker(); pushWorkletConfig();
+});
+bindRange(el.onsetRatio, el.onsetVal, "onsetRatio", function(v){return v.toFixed(1)+"×";}, pushWorkletConfig);
+bindRange(el.refractory, el.refractoryVal, "refractoryMs", function(v){return Math.round(v)+" ms";}, pushWorkletConfig);
+positionThresholdMarker();
+
+el.parEnabled.checked = settings.parEnabled;
+el.parField.style.display = settings.parEnabled ? "block" : "none";
+el.parEnabled.addEventListener("change", function(){
+  settings.parEnabled = el.parEnabled.checked;
+  saveSettings();
+  el.parField.style.display = settings.parEnabled ? "block" : "none";
+});
+bindRange(el.parTime, el.parVal, "parTime", function(v){return v.toFixed(1);});
+
+bindRange(el.beepVolume, el.volVal, "beepVolume", function(v){return Math.round(v)+"%";});
+bindRange(el.beepFreq, el.freqVal, "beepFreq", function(v){return Math.round(v)+" Hz";});
+
+el.testBeepBtn.addEventListener("click", testBeep);
+
+el.clearHistoryBtn.addEventListener("click", function(){
+  if(confirm("Clear all saved strings? This can't be undone.")){
+    history = [];
+    saveHistory(history);
+    renderReview();
+  }
+});
+
+function startMicTest(){
+  ensureAudioContext();
+  el.micTestBtn.textContent = "Calibrating… (tap to stop)";
+  el.micTestBtn.onclick = stopMicTest;
+  requestMic().then(function(){
+    meterActive = true;
+    el.meterMicStatus.textContent = "Mic: live";
+  }).catch(function(err){
+    el.meterMicStatus.textContent = "Mic: error";
+    showMicError(err);
+  });
+}
+function stopMicTest(){
+  meterActive = false;
+  el.meterFill.style.width = "0%";
+  el.micTestBtn.textContent = "Start mic test / calibrate";
+  el.micTestBtn.onclick = startMicTest;
+}
+el.micTestBtn.onclick = startMicTest;
+
+/* =========================================================================
+   OFFLINE NOTE
+   Browsers refuse to register a Service Worker from a blob:/data: URL —
+   the script must be a real same-origin .js file — so a true single HTML
+   file can't self-register one. Everything the app needs (UI, audio
+   engine, worklet code, icon, manifest) is inlined here with zero further
+   network requests once the page has loaded, and localStorage persists
+   settings/history locally, so it behaves offline for the length of a
+   session regardless. For a guaranteed offline *reload* with no signal at
+   all, add the small separate sw.js from the multi-file version alongside
+   this file — everything else still works fine without it.
+   ========================================================================= */
+
+/* =========================================================================
+   INIT
+   ========================================================================= */
+setBanner("idle", "Ready");
+updateStatsDisplay();
+
+})();
+</script>
+</body>
+</html>
